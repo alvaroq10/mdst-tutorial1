@@ -17,21 +17,41 @@ Once you are finished with this program, you should run `python preprocess.py` f
 This should load the data, perform preprocessing, and save the output to the data folder.
 
 """
+import pandas as pd
+import numpy as np
 
 def remove_percents(df, col):
-    return df
+	df[col] = df[col].str.replace("%","")
+	df[col] = df[col].astype(float)
+	return df
 
 def fill_zero_iron(df):
-    return df
+	df["Iron (% DV)"] = df["Iron (% DV)"].fillna(0)
+	return df
     
 def fix_caffeine(df):
-    return df
+	df["Caffeine (mg)"] = df["Caffeine (mg)"].str.replace("varies","0")
+	df["Caffeine (mg)"] = df["Caffeine (mg)"].str.replace("Varies","0")
+	df["Caffeine (mg)"] = df["Caffeine (mg)"].replace({'': np.nan})
+	df["Caffeine (mg)"] = df["Caffeine (mg)"].astype(float)
+	return df
 
 def standardize_names(df):
-    return df
+	units = [" \\(g\\)"," \\(mg\\)"," \\(% DV\\)"]
+	for unit in units:
+		df.columns = df.columns.str.replace(unit, '', regex=True)
+		
+	df.columns = df.columns.str.lower()
+	return df
 
 def fix_strings(df, col):
-    return df
+
+	def make_alphabetic(name):
+		return ''.join([i for i in name if i.isalpha()])
+	
+	df[col] = df[col].apply(make_alphabetic)
+	df[col] = df[col].str.lower()
+	return df
 
 
 def main():
@@ -66,7 +86,7 @@ def main():
     
     # now that the data is all clean, save your output to the `data` folder as 'starbucks_clean.csv'
     # you will use this file in checkpoint 2
-    
+    df.to_csv(r'~/Desktop/MDST/Tutorials/mdst_tutorials/data/starbucks_clean.csv', index=False)
     
 
 if __name__ == "__main__":
